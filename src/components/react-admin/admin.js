@@ -13,6 +13,7 @@ import CustomerIcon from '@mui/icons-material/SupportAgent';
 import PostIcon from '@mui/icons-material/Book';
 import UserIcon from '@mui/icons-material/Group';
 import MigrationIcon from '@mui/icons-material/Storage';
+//import Icono from '@mui/icons-material/Medication';
 
 import { AdminLayout } from 'components/react-admin/adminLayout';
 
@@ -41,6 +42,7 @@ const RAdmin = () => (
       list={MigrationList} icon={MigrationIcon} edit={MigrationEdit} create={MigrationCreate}/>
     <Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} icon={PostIcon} />
     <Resource name="users" list={UserList} icon={UserIcon} recordRepresentation="name" />
+   
   </Admin>
 )
 
