@@ -1,6 +1,7 @@
 import { Admin, Resource } from 'react-admin';
 import jsonServerProvider from 'ra-data-json-server';
 import jsonapiClient from 'ra-jsonapi-client';
+import { useState } from 'react';
 
 import { UserList } from 'components/react-admin/users';
 import { CustomerList, CustomerEdit, CustomerCreate } from 'components/react-admin/customers';
@@ -16,32 +17,52 @@ import MigrationIcon from '@mui/icons-material/Storage';
 
 import { AdminLayout } from 'components/react-admin/adminLayout';
 
-import { ArtworkList} from 'components/react-admin/artworks';
+import { ArtworkList } from 'components/react-admin/artworks';
 import ArtworkIcon from '@mui/icons-material/Palette';
+
+import { default as AuthProvider } from 'components/react-admin/authProvider';
+import { default as Login } from 'pages/login'
 
 //const dataProvider = jsonServerProvider('http://encuentro.test/api');
 const dataProvider = jsonapiClient('http://encuentro.test/api');
 
-<Resource name="customers" list={CustomerList} icon={CustomerIcon} edit={CustomerEdit} create={CustomerCreate} />
+//<Resource name="customers" list={CustomerList} icon={CustomerIcon} edit={CustomerEdit} create={CustomerCreate} />
 
-const RAdmin = () => (
-  <Admin
-    basename="/dashboard"
-    dataProvider={dataProvider}
-    layout={AdminLayout}
-   >
-    <Resource name="customers"
-    s list={CustomerList}
-     icon={CustomerIcon} edit={CustomerEdit} 
-     create={CustomerCreate} />
+const RAdmin = () => {
+  function handleDataProvider(dataProvider) {
+    setDataProvider(() => dataProvider)
+  }
 
-<Resource name="artworks" list={ArtworkList} icon={ArtworkIcon} />
+  const myLogin = <Login handleDataProvider={handleDataProvider} />
 
-    <Resource name="migrations"
-      list={MigrationList} icon={MigrationIcon} edit={MigrationEdit} create={MigrationCreate}/>
-    <Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} icon={PostIcon} />
-    <Resource name="users" list={UserList} icon={UserIcon} recordRepresentation="name" />
-  </Admin>
-)
+  const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`
+  const [dataProvider, setDataProvider] = useState(null)
+
+  if (!dataProvider) {
+    handleDataProvider(jsonapiClient(API_URL))
+  }
+  return (
+    <Admin
+      basename="/dashboard"
+      dataProvider={dataProvider}
+      //layout={AdminLayout}
+      authProvider={AuthProvider}
+      loginPage={myLogin}
+    >
+      <Resource name="customers"
+        list={CustomerList}
+        icon={CustomerIcon}
+        edit={CustomerEdit}
+        create={CustomerCreate} />
+
+      <Resource name="artworks" list={ArtworkList} icon={ArtworkIcon} />
+
+      <Resource name="migrations"
+        list={MigrationList} icon={MigrationIcon} edit={MigrationEdit} create={MigrationCreate} />
+      <Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} icon={PostIcon} />
+      <Resource name="users" list={UserList} icon={UserIcon} recordRepresentation="name" />
+    </Admin>
+  )
+}
 
 export default RAdmin;
