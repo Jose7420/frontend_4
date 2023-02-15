@@ -16,29 +16,61 @@ import MigrationIcon from '@mui/icons-material/Storage';
 
 import { AdminLayout } from 'components/react-admin/adminLayout';
 
-import { ArtworkList} from 'components/react-admin/artworks';
+import { ArtworkList } from 'components/react-admin/artworks';
 import ArtworkIcon from '@mui/icons-material/Palette';
+
+import { default as AuthProvider } from 'components/react-admin/authProvider';
+import { useState } from 'react';
 
 //const dataProvider = jsonServerProvider('http://encuentro.test/api');
 const dataProvider = jsonapiClient('http://encuentro.test/api');
 
 <Resource name="customers" list={CustomerList} icon={CustomerIcon} edit={CustomerEdit} create={CustomerCreate} />
 
-const RAdmin = () => (
+
+const RAdmin = () => {
+
+  function handleDataProvider(dataProvider) {
+    setDataProvider(() => dataProvider)
+  }
+
+  let token = localStorage.getItem('auth')
+  let settings = null
+  if (token) {
+    token = JSON.parse(localStorage.getItem('auth'))
+    settings = {
+      headers: {
+        Authorization: `${token.token_type} ${token.access_token}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    }
+  }
+
+  const API_URL = `${process.env.REACT_APP_BACKEND_URL}/api`
+  const [dataProvider, setDataProvider] = useState(null)
+
+  if (!dataProvider) {
+    handleDataProvider(jsonapiClient(API_URL))
+  }
+}
+return (
   <Admin
     basename="/dashboard"
     dataProvider={dataProvider}
-    layout={AdminLayout}
-   >
-    <Resource name="customers"
-    s list={CustomerList}
-     icon={CustomerIcon} edit={CustomerEdit} 
-     create={CustomerCreate} />
+    // layout={AdminLayout}
+    authProvider={AuthProvider}
+    loginPage={myLogin}
 
-<Resource name="artworks" list={ArtworkList} icon={ArtworkIcon} />
+  >
+    <Resource name="customers"
+      list={CustomerList}
+      icon={CustomerIcon} edit={CustomerEdit}
+      create={CustomerCreate} />
+
+    <Resource name="artworks" list={ArtworkList} icon={ArtworkIcon} />
 
     <Resource name="migrations"
-      list={MigrationList} icon={MigrationIcon} edit={MigrationEdit} create={MigrationCreate}/>
+      list={MigrationList} icon={MigrationIcon} edit={MigrationEdit} create={MigrationCreate} />
     <Resource name="posts" list={PostList} edit={PostEdit} create={PostCreate} icon={PostIcon} />
     <Resource name="users" list={UserList} icon={UserIcon} recordRepresentation="name" />
   </Admin>
